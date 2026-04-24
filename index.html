@@ -2,20 +2,83 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- 🔥 منع الزوم نهائي -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
 <title>My Work</title>
+
 <link rel="manifest" href="manifest.json">
+
+<!-- 🔥 تشغيل كتطبيق -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Tracker">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+
 <style>
-body{font-family:Arial;background:#0f172a;color:#fff;margin:0;padding:10px}
+body{
+  font-family:Arial;
+  background:#0f172a;
+  color:#fff;
+  margin:0;
+  padding:10px;
+  touch-action: manipulation;
+}
+
 h2{text-align:center}
-table{width:100%;border-collapse:collapse;background:#1e293b;border-radius:10px;overflow:hidden}
-th,td{padding:8px;text-align:center;border-bottom:1px solid #334155}
-input,select{width:100%;padding:6px;border:none;border-radius:5px}
-.add{width:100%;margin-top:10px;background:#22c55e;color:#fff;padding:10px;border:none;border-radius:10px}
-.del{background:#ef4444;color:#fff;border:none;padding:6px;border-radius:6px}
-.total{margin-top:10px;text-align:center;font-size:18px}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  background:#1e293b;
+  border-radius:10px;
+  overflow:hidden
+}
+
+th,td{
+  padding:10px;
+  text-align:center;
+  border-bottom:1px solid #334155
+}
+
+/* 🔥 يمنع زوم iPhone */
+input,select{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  font-size:16px;
+}
+
+.add{
+  width:100%;
+  margin-top:10px;
+  background:#22c55e;
+  color:#fff;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+}
+
+.del{
+  background:#ef4444;
+  color:#fff;
+  border:none;
+  padding:8px;
+  border-radius:6px;
+}
+
+.total{
+  margin-top:15px;
+  text-align:center;
+  font-size:20px;
+}
 </style>
 </head>
+
 <body>
 
 <h2>Fadi Store Work</h2>
