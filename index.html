@@ -22,42 +22,22 @@ body{
   padding:15px;
 }
 
-h1{text-align:center;margin-bottom:20px}
+h1{text-align:center;margin-bottom:15px}
 
-/* login */
-.login{
-  position:fixed;
-  inset:0;
-  background:#020617;
+.nav{
   display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-direction:column;
+  gap:10px;
+  margin-bottom:15px;
 }
 
-.login input{
-  padding:15px;
-  border-radius:10px;
-  border:none;
-  width:70%;
-  margin-top:10px;
+.nav button{
+  flex:1;
 }
 
-.login button{
-  margin-top:10px;
-  padding:15px;
-  border:none;
-  border-radius:10px;
-  background:#22c55e;
-  width:70%;
-}
-
-/* box */
 .box{
   background:#0f172a;
   padding:15px;
   border-radius:15px;
-  margin-bottom:20px;
 }
 
 input,select{
@@ -70,29 +50,21 @@ input,select{
   color:white;
 }
 
-input:focus,select:focus{
-  outline:none;
-  box-shadow:0 0 0 2px #22c55e;
-}
-
 button{
-  width:100%;
   padding:14px;
   margin-top:10px;
   border:none;
   border-radius:10px;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  color:white;
+  background:#22c55e;
+  color:black;
   font-weight:bold;
 }
 
-/* card */
 .card{
-  background:linear-gradient(145deg,#0f172a,#020617);
-  padding:16px;
-  border-radius:20px;
-  margin-bottom:15px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.6);
+  background:#0f172a;
+  padding:15px;
+  border-radius:15px;
+  margin-top:10px;
 }
 
 .row{
@@ -101,70 +73,53 @@ button{
   margin-top:5px;
 }
 
-.del{
-  background:linear-gradient(135deg,#ef4444,#b91c1c);
-}
-
 .total{
   text-align:center;
   margin-top:20px;
   font-size:20px;
-}
-
-#report{
-  display:none;
-  background:#0f172a;
-  padding:20px;
-  border-radius:15px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- login -->
-<div class="login" id="login">
-<h2>Enter Password</h2>
-<input type="password" id="pass">
-<button onclick="check()">Enter</button>
-</div>
-
 <h1>Fadi Store</h1>
 
+<div class="nav">
+<button onclick="showPage('home')">🏠</button>
+<button onclick="showPage('customers')">👥</button>
+<button onclick="showPage('report')">📊</button>
+</div>
+
+<!-- HOME -->
+<div id="homePage">
 <div class="box">
 <input placeholder="Customer Name" id="name">
 
 <select id="sub"></select>
 
-<input type="number" inputmode="decimal" placeholder="Cost $" id="cost">
-<input type="number" inputmode="decimal" placeholder="Sell $" id="sell">
+<input type="number" placeholder="Cost $" id="cost">
+<input type="number" placeholder="Sell $" id="sell">
 
 <button onclick="add()">+ Add</button>
-
-<input placeholder="🔍 Search..." id="search" oninput="render()">
-
-<button onclick="showReport()">📊 Reports</button>
+</div>
 </div>
 
+<!-- CUSTOMERS -->
+<div id="customersPage" style="display:none">
+<input placeholder="🔍 Search..." id="search" oninput="render()">
 <div id="list"></div>
 <div class="total" id="total"></div>
+</div>
 
-<div id="report">
-<h2>📊 Reports</h2>
+<!-- REPORT -->
+<div id="reportPage" style="display:none">
 <div id="reportData"></div>
-<button onclick="closeReport()">Close</button>
 </div>
 
 <script>
-const PASSWORD="Fadi!!@@1122$$";
 
-function check(){
- if(document.getElementById("pass").value===PASSWORD){
-  document.getElementById("login").style.display="none";
- }
-}
-
-let data=JSON.parse(localStorage.getItem("data")||"[]");
+let data = JSON.parse(localStorage.getItem("data")||"[]");
 
 const options=["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
 
@@ -186,12 +141,40 @@ function calc(r){
  return s-c;
 }
 
+function showPage(p){
+ document.getElementById("homePage").style.display="none";
+ document.getElementById("customersPage").style.display="none";
+ document.getElementById("reportPage").style.display="none";
+
+ if(p==="home") document.getElementById("homePage").style.display="block";
+ if(p==="customers"){
+   document.getElementById("customersPage").style.display="block";
+   render();
+ }
+ if(p==="report"){
+   document.getElementById("reportPage").style.display="block";
+   showReport();
+ }
+}
+
 /* swipe */
 let start=0;
-function startX(e){start=e.changedTouches[0].screenX;}
+
+function startX(e){
+ start=e.changedTouches[0].screenX;
+}
+
 function endX(e,i){
  let end=e.changedTouches[0].screenX;
- if(start-end>80){del(i);}
+ if(start-end>80){
+   confirmDelete(i);
+ }
+}
+
+function confirmDelete(i){
+ if(confirm("Delete this customer?")){
+   del(i);
+ }
 }
 
 function render(){
@@ -210,12 +193,18 @@ function render(){
 
  list.innerHTML+=`
  <div class="card" ontouchstart="startX(event)" ontouchend="endX(event,${i})">
-  <b>${r.name||""}</b>
-  <div class="row"><span>${r.sub}</span></div>
+  <div style="display:flex;justify-content:space-between">
+   <b>${r.name}</b>
+   <span>${r.sub}</span>
+  </div>
+
   <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
   <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
-  <div class="row"><span>Profit</span><span style="color:${color}">${p.toFixed(2)}$</span></div>
-  <button class="del" onclick="del(${i})">Delete</button>
+
+  <div class="row">
+   <span>Profit</span>
+   <span style="color:${color}">${p.toFixed(2)}$</span>
+  </div>
  </div>`;
  });
 
@@ -223,16 +212,17 @@ function render(){
 }
 
 function add(){
- let n=document.getElementById("name").value;
- let s=document.getElementById("sub").value;
- let c=document.getElementById("cost").value;
- let se=document.getElementById("sell").value;
+ let n=name.value;
+ let s=sub.value;
+ let c=cost.value;
+ let se=sell.value;
 
  data.push({name:n,sub:s,cost:c,sell:se});
  save();
- render();
 
- name.value="";cost.value="";sell.value="";
+ name.value="";
+ cost.value="";
+ sell.value="";
 }
 
 function del(i){
@@ -241,7 +231,6 @@ function del(i){
  render();
 }
 
-/* report */
 function showReport(){
  let total=0,count=data.length,best=0;
 
@@ -255,15 +244,8 @@ function showReport(){
  `Total Profit: ${total.toFixed(2)} $<br>
  Customers: ${count}<br>
  Best Profit: ${best.toFixed(2)} $`;
-
- document.getElementById("report").style.display="block";
 }
 
-function closeReport(){
- document.getElementById("report").style.display="none";
-}
-
-render();
 </script>
 
 </body>
