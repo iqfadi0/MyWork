@@ -3,22 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sales Tracker</title>
+<title>Level 200 Tracker</title>
 <link rel="manifest" href="manifest.json">
 <style>
 body{font-family:Arial;background:#0f172a;color:#fff;margin:0;padding:10px}
 h2{text-align:center}
+nav{display:flex;gap:5px;margin-bottom:10px}
+nav button{flex:1;padding:10px;background:#1e293b;color:#fff;border:none;border-radius:8px}
+.active{background:#22c55e}
 table{width:100%;border-collapse:collapse;background:#1e293b;border-radius:10px;overflow:hidden}
-th,td{padding:10px;text-align:center;border-bottom:1px solid #334155}
-input{width:100%;padding:6px;border:none;border-radius:5px}
-button{width:100%;padding:12px;margin-top:10px;background:#22c55e;color:#fff;border:none;border-radius:10px;font-size:18px}
-.total{margin-top:15px;font-size:20px;text-align:center}
+th,td{padding:8px;text-align:center;border-bottom:1px solid #334155}
+input,select{width:100%;padding:6px;border:none;border-radius:5px}
+.add{width:100%;margin-top:10px;background:#22c55e;color:#fff;padding:10px;border:none;border-radius:10px}
+.del{background:#ef4444;color:#fff;border:none;padding:6px;border-radius:6px}
+.card{background:#1e293b;padding:12px;margin-top:10px;border-radius:10px}
 </style>
 </head>
 <body>
 
-<h2>Sales Tracker</h2>
+<h2>Level 200 Tracker</h2>
 
+<nav>
+<button onclick="show('main')" class="active" id="btnMain">Main</button>
+<button onclick="show('report')" id="btnReport">Reports</button>
+</nav>
+
+<div id="main">
 <table>
 <thead>
 <tr>
@@ -27,45 +37,96 @@ button{width:100%;padding:12px;margin-top:10px;background:#22c55e;color:#fff;bor
 <th>Cost</th>
 <th>Sell</th>
 <th>Profit</th>
+<th>Action</th>
 </tr>
 </thead>
 <tbody id="body"></tbody>
 </table>
+<button class="add" onclick="addRow()">+ Add</button>
+</div>
 
-<button onclick="addRow()">+ Add Row</button>
-
-<div class="total" id="total">Total: 0</div>
+<div id="report" style="display:none">
+<div class="card" id="total"></div>
+<div class="card" id="best"></div>
+<div class="card" id="count"></div>
+</div>
 
 <script>
-function addRow(){
+let data = JSON.parse(localStorage.getItem("data")||"[]");
+
+function save(){
+ localStorage.setItem("data",JSON.stringify(data));
+}
+
+function calc(r){
+ let cost=parseFloat((r.cost||"0").replace(",","."));
+ let sell=parseFloat((r.sell||"0").replace(",","."));
+ return isNaN(cost)||isNaN(sell)?0:(sell-cost);
+}
+
+function render(){
+ let body=document.getElementById("body");
+ body.innerHTML="";
+ data.forEach((r,i)=>{
+ let p=calc(r);
  let tr=document.createElement("tr");
  tr.innerHTML=`
-<td><input></td>
-<td><input></td>
-<td><input oninput="calc(this)"></td>
-<td><input oninput="calc(this)"></td>
-<td>0</td>`;
- document.getElementById("body").appendChild(tr);
-}
-
-function calc(el){
- let row=el.parentElement.parentElement;
- let cost=parseFloat(row.children[2].children[0].value.replace(",","."));
- let sell=parseFloat(row.children[3].children[0].value.replace(",","."));
- let profit=(!isNaN(cost)&&!isNaN(sell))?(sell-cost):0;
- row.children[4].innerText=profit.toFixed(2);
- updateTotal();
-}
-
-function updateTotal(){
- let total=0;
- document.querySelectorAll("tbody tr").forEach(r=>{
- total+=parseFloat(r.children[4].innerText)||0;
+<td><input value="${r.customer||""}" oninput="update(${i},'customer',this.value)"></td>
+<td>
+<select onchange="update(${i},'sub',this.value)">
+<option ${r.sub=="Netflix"?"selected":""}>Netflix</option>
+<option ${r.sub=="Shahid"?"selected":""}>Shahid</option>
+<option ${r.sub=="Internet"?"selected":""}>Internet</option>
+</select>
+</td>
+<td><input value="${r.cost||""}" oninput="update(${i},'cost',this.value)"></td>
+<td><input value="${r.sell||""}" oninput="update(${i},'sell',this.value)"></td>
+<td>${p.toFixed(2)}</td>
+<td><button class="del" onclick="del(${i})">X</button></td>`;
+ body.appendChild(tr);
  });
- document.getElementById("total").innerText="Total: "+total.toFixed(2);
+ renderReport();
 }
 
-addRow();
+function update(i,k,v){
+ data[i][k]=v;
+ save();
+ render();
+}
+
+function addRow(){
+ data.push({});
+ save();
+ render();
+}
+
+function del(i){
+ data.splice(i,1);
+ save();
+ render();
+}
+
+function renderReport(){
+ let total=0, best=0, bestName="", count=data.length;
+ data.forEach(r=>{
+ let p=calc(r);
+ total+=p;
+ if(p>best){best=p; bestName=r.customer||"Unknown";}
+ });
+ document.getElementById("total").innerText="Total Profit: "+total.toFixed(2);
+ document.getElementById("best").innerText="Best Customer: "+bestName+" ("+best.toFixed(2)+")";
+ document.getElementById("count").innerText="Total Deals: "+count;
+}
+
+function show(tab){
+ document.getElementById("main").style.display = tab=="main"?"block":"none";
+ document.getElementById("report").style.display = tab=="report"?"block":"none";
+ document.getElementById("btnMain").classList.remove("active");
+ document.getElementById("btnReport").classList.remove("active");
+ document.getElementById(tab=="main"?"btnMain":"btnReport").classList.add("active");
+}
+
+render();
 </script>
 
 </body>
