@@ -3,32 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Level 200 Tracker</title>
+<title>Level 200 Fixed</title>
 <link rel="manifest" href="manifest.json">
 <style>
 body{font-family:Arial;background:#0f172a;color:#fff;margin:0;padding:10px}
 h2{text-align:center}
-nav{display:flex;gap:5px;margin-bottom:10px}
-nav button{flex:1;padding:10px;background:#1e293b;color:#fff;border:none;border-radius:8px}
-.active{background:#22c55e}
 table{width:100%;border-collapse:collapse;background:#1e293b;border-radius:10px;overflow:hidden}
 th,td{padding:8px;text-align:center;border-bottom:1px solid #334155}
 input,select{width:100%;padding:6px;border:none;border-radius:5px}
 .add{width:100%;margin-top:10px;background:#22c55e;color:#fff;padding:10px;border:none;border-radius:10px}
 .del{background:#ef4444;color:#fff;border:none;padding:6px;border-radius:6px}
-.card{background:#1e293b;padding:12px;margin-top:10px;border-radius:10px}
+.total{margin-top:10px;text-align:center;font-size:18px}
 </style>
 </head>
 <body>
 
-<h2>Level 200 Tracker</h2>
+<h2>Tracker PRO FIXED</h2>
 
-<nav>
-<button onclick="show('main')" class="active" id="btnMain">Main</button>
-<button onclick="show('report')" id="btnReport">Reports</button>
-</nav>
-
-<div id="main">
 <table>
 <thead>
 <tr>
@@ -42,14 +33,9 @@ input,select{width:100%;padding:6px;border:none;border-radius:5px}
 </thead>
 <tbody id="body"></tbody>
 </table>
-<button class="add" onclick="addRow()">+ Add</button>
-</div>
 
-<div id="report" style="display:none">
-<div class="card" id="total"></div>
-<div class="card" id="best"></div>
-<div class="card" id="count"></div>
-</div>
+<button class="add" onclick="addRow()">+ Add</button>
+<div class="total" id="total"></div>
 
 <script>
 let data = JSON.parse(localStorage.getItem("data")||"[]");
@@ -58,17 +44,17 @@ function save(){
  localStorage.setItem("data",JSON.stringify(data));
 }
 
-function calc(r){
- let cost=parseFloat((r.cost||"0").replace(",","."));
- let sell=parseFloat((r.sell||"0").replace(",","."));
- return isNaN(cost)||isNaN(sell)?0:(sell-cost);
+function calc(i){
+ let cost=parseFloat((data[i].cost||"0").replace(",","."));
+ let sell=parseFloat((data[i].sell||"0").replace(",","."));
+ return (!isNaN(cost)&&!isNaN(sell))?(sell-cost):0;
 }
 
 function render(){
  let body=document.getElementById("body");
  body.innerHTML="";
  data.forEach((r,i)=>{
- let p=calc(r);
+ let p=calc(i);
  let tr=document.createElement("tr");
  tr.innerHTML=`
 <td><input value="${r.customer||""}" oninput="update(${i},'customer',this.value)"></td>
@@ -81,17 +67,20 @@ function render(){
 </td>
 <td><input value="${r.cost||""}" oninput="update(${i},'cost',this.value)"></td>
 <td><input value="${r.sell||""}" oninput="update(${i},'sell',this.value)"></td>
-<td>${p.toFixed(2)}</td>
-<td><button class="del" onclick="del(${i})">X</button></td>`;
+<td id="p${i}">${p.toFixed(2)}</td>
+<td><button class="del" onclick="delRow(${i})">X</button></td>`;
  body.appendChild(tr);
  });
- renderReport();
+ updateTotal();
 }
 
 function update(i,k,v){
  data[i][k]=v;
  save();
- render();
+
+ let profit = calc(i);
+ document.getElementById("p"+i).innerText = profit.toFixed(2);
+ updateTotal();
 }
 
 function addRow(){
@@ -100,30 +89,18 @@ function addRow(){
  render();
 }
 
-function del(i){
+function delRow(i){
  data.splice(i,1);
  save();
  render();
 }
 
-function renderReport(){
- let total=0, best=0, bestName="", count=data.length;
- data.forEach(r=>{
- let p=calc(r);
- total+=p;
- if(p>best){best=p; bestName=r.customer||"Unknown";}
+function updateTotal(){
+ let total=0;
+ data.forEach((r,i)=>{
+ total+=calc(i);
  });
- document.getElementById("total").innerText="Total Profit: "+total.toFixed(2);
- document.getElementById("best").innerText="Best Customer: "+bestName+" ("+best.toFixed(2)+")";
- document.getElementById("count").innerText="Total Deals: "+count;
-}
-
-function show(tab){
- document.getElementById("main").style.display = tab=="main"?"block":"none";
- document.getElementById("report").style.display = tab=="report"?"block":"none";
- document.getElementById("btnMain").classList.remove("active");
- document.getElementById("btnReport").classList.remove("active");
- document.getElementById(tab=="main"?"btnMain":"btnReport").classList.add("active");
+ document.getElementById("total").innerText="Total: "+total.toFixed(2);
 }
 
 render();
