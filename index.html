@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- 🔥 منع الزوم -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <title>Fadi Store</title>
 
 <link rel="manifest" href="manifest.json">
 
-<!-- 🔥 iPhone App Mode -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="icon.png">
@@ -26,7 +24,7 @@ body{
 
 h1{text-align:center;margin-bottom:20px}
 
-/* 🔥 تسجيل الدخول */
+/* login */
 .login{
   position:fixed;
   inset:0;
@@ -54,7 +52,7 @@ h1{text-align:center;margin-bottom:20px}
   width:70%;
 }
 
-/* 🔥 الصندوق */
+/* box */
 .box{
   background:#0f172a;
   padding:15px;
@@ -72,23 +70,29 @@ input,select{
   color:white;
 }
 
+input:focus,select:focus{
+  outline:none;
+  box-shadow:0 0 0 2px #22c55e;
+}
+
 button{
   width:100%;
   padding:14px;
   margin-top:10px;
   border:none;
   border-radius:10px;
-  background:#22c55e;
-  color:black;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:white;
   font-weight:bold;
 }
 
-/* 🔥 الكارد */
+/* card */
 .card{
-  background:#0f172a;
-  padding:15px;
-  border-radius:15px;
-  margin-bottom:10px;
+  background:linear-gradient(145deg,#0f172a,#020617);
+  padding:16px;
+  border-radius:20px;
+  margin-bottom:15px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.6);
 }
 
 .row{
@@ -97,11 +101,8 @@ button{
   margin-top:5px;
 }
 
-.profit{color:#22c55e;font-weight:bold}
-
 .del{
-  background:#ef4444;
-  margin-top:10px;
+  background:linear-gradient(135deg,#ef4444,#b91c1c);
 }
 
 .total{
@@ -109,12 +110,19 @@ button{
   margin-top:20px;
   font-size:20px;
 }
+
+#report{
+  display:none;
+  background:#0f172a;
+  padding:20px;
+  border-radius:15px;
+}
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 Login -->
+<!-- login -->
 <div class="login" id="login">
 <h2>Enter Password</h2>
 <input type="password" id="pass">
@@ -125,17 +133,30 @@ button{
 
 <div class="box">
 <input placeholder="Customer Name" id="name">
+
 <select id="sub"></select>
-<input placeholder="Cost $" id="cost">
-<input placeholder="Sell $" id="sell">
+
+<input type="number" inputmode="decimal" placeholder="Cost $" id="cost">
+<input type="number" inputmode="decimal" placeholder="Sell $" id="sell">
+
 <button onclick="add()">+ Add</button>
+
+<input placeholder="🔍 Search..." id="search" oninput="render()">
+
+<button onclick="showReport()">📊 Reports</button>
 </div>
 
 <div id="list"></div>
 <div class="total" id="total"></div>
 
+<div id="report">
+<h2>📊 Reports</h2>
+<div id="reportData"></div>
+<button onclick="closeReport()">Close</button>
+</div>
+
 <script>
-const PASSWORD = "Fadi!!@@1122$$";
+const PASSWORD="Fadi!!@@1122$$";
 
 function check(){
  if(document.getElementById("pass").value===PASSWORD){
@@ -143,7 +164,7 @@ function check(){
  }
 }
 
-let data = JSON.parse(localStorage.getItem("data")||"[]");
+let data=JSON.parse(localStorage.getItem("data")||"[]");
 
 const options=["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
 
@@ -159,27 +180,41 @@ function save(){
 }
 
 function calc(r){
- let c=parseFloat((r.cost||"0").replace(",","."));
- let s=parseFloat((r.sell||"0").replace(",","."));
- return (!isNaN(c)&&!isNaN(s))?(s-c):0;
+ let c=Number(r.cost);
+ let s=Number(r.sell);
+ if(isNaN(c)||isNaN(s)) return 0;
+ return s-c;
+}
+
+/* swipe */
+let start=0;
+function startX(e){start=e.changedTouches[0].screenX;}
+function endX(e,i){
+ let end=e.changedTouches[0].screenX;
+ if(start-end>80){del(i);}
 }
 
 function render(){
  let list=document.getElementById("list");
+ let keyword=document.getElementById("search").value.toLowerCase();
  list.innerHTML="";
  let total=0;
 
  data.forEach((r,i)=>{
+ if(r.name && !r.name.toLowerCase().includes(keyword)) return;
+
  let p=calc(r);
  total+=p;
 
+ let color=p>=0?"#22c55e":"#ef4444";
+
  list.innerHTML+=`
- <div class="card">
+ <div class="card" ontouchstart="startX(event)" ontouchend="endX(event,${i})">
   <b>${r.name||""}</b>
   <div class="row"><span>${r.sub}</span></div>
-  <div class="row"><span>Cost</span><span>${r.cost}$</span></div>
-  <div class="row"><span>Sell</span><span>${r.sell}$</span></div>
-  <div class="row"><span>Profit</span><span class="profit">${p.toFixed(2)}$</span></div>
+  <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
+  <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
+  <div class="row"><span>Profit</span><span style="color:${color}">${p.toFixed(2)}$</span></div>
   <button class="del" onclick="del(${i})">Delete</button>
  </div>`;
  });
@@ -197,15 +232,35 @@ function add(){
  save();
  render();
 
- document.getElementById("name").value="";
- document.getElementById("cost").value="";
- document.getElementById("sell").value="";
+ name.value="";cost.value="";sell.value="";
 }
 
 function del(i){
  data.splice(i,1);
  save();
  render();
+}
+
+/* report */
+function showReport(){
+ let total=0,count=data.length,best=0;
+
+ data.forEach(r=>{
+  let p=calc(r);
+  total+=p;
+  if(p>best) best=p;
+ });
+
+ document.getElementById("reportData").innerHTML=
+ `Total Profit: ${total.toFixed(2)} $<br>
+ Customers: ${count}<br>
+ Best Profit: ${best.toFixed(2)} $`;
+
+ document.getElementById("report").style.display="block";
+}
+
+function closeReport(){
+ document.getElementById("report").style.display="none";
 }
 
 render();
