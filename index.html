@@ -3,35 +3,62 @@
 <head>
 <meta charset="UTF-8">
 
+<!-- 🔥 منع الزوم -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <title>Fadi Store</title>
 
+<link rel="manifest" href="manifest.json">
+
+<!-- 🔥 iPhone App Mode -->
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="theme-color" content="#020617">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon.png">
 
 <style>
 body{
   margin:0;
-  font-family: -apple-system, BlinkMacSystemFont;
+  font-family:-apple-system;
   background:#020617;
   color:white;
   padding:15px;
 }
 
-/* 🔥 عنوان */
-h1{
-  text-align:center;
-  font-size:26px;
-  margin-bottom:20px;
+h1{text-align:center;margin-bottom:20px}
+
+/* 🔥 تسجيل الدخول */
+.login{
+  position:fixed;
+  inset:0;
+  background:#020617;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
 }
 
-/* 🔥 الفورم */
+.login input{
+  padding:15px;
+  border-radius:10px;
+  border:none;
+  width:70%;
+  margin-top:10px;
+}
+
+.login button{
+  margin-top:10px;
+  padding:15px;
+  border:none;
+  border-radius:10px;
+  background:#22c55e;
+  width:70%;
+}
+
+/* 🔥 الصندوق */
 .box{
   background:#0f172a;
   padding:15px;
-  border-radius:16px;
+  border-radius:15px;
   margin-bottom:20px;
 }
 
@@ -39,102 +66,102 @@ input,select{
   width:100%;
   padding:14px;
   margin-top:10px;
-  border-radius:12px;
+  border-radius:10px;
   border:none;
-  font-size:16px;
   background:#1e293b;
   color:white;
 }
 
-/* 🔥 زر */
 button{
   width:100%;
   padding:14px;
-  margin-top:15px;
-  border-radius:12px;
+  margin-top:10px;
   border:none;
-  font-size:16px;
+  border-radius:10px;
   background:#22c55e;
   color:black;
   font-weight:bold;
 }
 
-/* 🔥 الكروت */
+/* 🔥 الكارد */
 .card{
   background:#0f172a;
   padding:15px;
-  border-radius:16px;
-  margin-bottom:12px;
+  border-radius:15px;
+  margin-bottom:10px;
 }
 
 .row{
   display:flex;
   justify-content:space-between;
-  margin-top:6px;
+  margin-top:5px;
 }
 
-.profit{
-  font-size:18px;
-  font-weight:bold;
-  color:#22c55e;
-}
+.profit{color:#22c55e;font-weight:bold}
 
 .del{
-  margin-top:10px;
   background:#ef4444;
-  color:white;
+  margin-top:10px;
 }
 
-/* 🔥 التوتال */
 .total{
   text-align:center;
-  font-size:22px;
   margin-top:20px;
-  font-weight:bold;
+  font-size:20px;
 }
 </style>
 </head>
 
 <body>
 
+<!-- 🔐 Login -->
+<div class="login" id="login">
+<h2>Enter Password</h2>
+<input type="password" id="pass">
+<button onclick="check()">Enter</button>
+</div>
+
 <h1>Fadi Store</h1>
 
 <div class="box">
-<input id="name" placeholder="Customer Name">
-
-<select id="sub">
-<option>Netflix</option>
-<option>Shahid</option>
-<option>5.5 GB</option>
-<option>11 GB</option>
-<option>16.5 GB</option>
-<option>22 GB</option>
-<option>33 GB</option>
-<option>44 GB</option>
-<option>55 GB</option>
-<option>66 GB</option>
-<option>77 GB</option>
-<option>88 GB</option>
-<option>100 GB</option>
-</select>
-
-<input id="cost" placeholder="Cost $" type="number">
-<input id="sell" placeholder="Sell $" type="number">
-
+<input placeholder="Customer Name" id="name">
+<select id="sub"></select>
+<input placeholder="Cost $" id="cost">
+<input placeholder="Sell $" id="sell">
 <button onclick="add()">+ Add</button>
 </div>
 
 <div id="list"></div>
-
-<div class="total">
-Total: <span id="total">0</span> $
-</div>
+<div class="total" id="total"></div>
 
 <script>
+const PASSWORD = "Fadi!!@@1122$$";
+
+function check(){
+ if(document.getElementById("pass").value===PASSWORD){
+  document.getElementById("login").style.display="none";
+ }
+}
+
 let data = JSON.parse(localStorage.getItem("data")||"[]");
+
+const options=["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
+
+let sub=document.getElementById("sub");
+options.forEach(o=>{
+ let opt=document.createElement("option");
+ opt.text=o;
+ sub.add(opt);
+});
 
 function save(){
  localStorage.setItem("data",JSON.stringify(data));
+}
+
+function calc(r){
+ let c=parseFloat((r.cost||"0").replace(",","."));
+ let s=parseFloat((r.sell||"0").replace(",","."));
+ return (!isNaN(c)&&!isNaN(s))?(s-c):0;
 }
 
 function render(){
@@ -142,40 +169,37 @@ function render(){
  list.innerHTML="";
  let total=0;
 
- data.forEach((x,i)=>{
- let profit=(x.sell-x.cost)||0;
- total+=profit;
+ data.forEach((r,i)=>{
+ let p=calc(r);
+ total+=p;
 
  list.innerHTML+=`
  <div class="card">
-   <div class="row"><b>${x.name}</b><span>${x.sub}</span></div>
-   <div class="row"><span>Cost</span><span>${x.cost}$</span></div>
-   <div class="row"><span>Sell</span><span>${x.sell}$</span></div>
-   <div class="row"><span>Profit</span><span class="profit">${profit.toFixed(2)}$</span></div>
-   <button class="del" onclick="del(${i})">Delete</button>
- </div>
- `;
+  <b>${r.name||""}</b>
+  <div class="row"><span>${r.sub}</span></div>
+  <div class="row"><span>Cost</span><span>${r.cost}$</span></div>
+  <div class="row"><span>Sell</span><span>${r.sell}$</span></div>
+  <div class="row"><span>Profit</span><span class="profit">${p.toFixed(2)}$</span></div>
+  <button class="del" onclick="del(${i})">Delete</button>
+ </div>`;
  });
 
- document.getElementById("total").innerText=total.toFixed(2);
+ document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
 function add(){
- let name=document.getElementById("name").value;
- let sub=document.getElementById("sub").value;
- let cost=parseFloat(document.getElementById("cost").value);
- let sell=parseFloat(document.getElementById("sell").value);
+ let n=document.getElementById("name").value;
+ let s=document.getElementById("sub").value;
+ let c=document.getElementById("cost").value;
+ let se=document.getElementById("sell").value;
 
- if(!name || isNaN(cost) || isNaN(sell)) return;
-
- data.push({name,sub,cost,sell});
+ data.push({name:n,sub:s,cost:c,sell:se});
  save();
+ render();
 
  document.getElementById("name").value="";
  document.getElementById("cost").value="";
  document.getElementById("sell").value="";
-
- render();
 }
 
 function del(i){
