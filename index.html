@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Level 200 Fixed</title>
+<title>Custom Tracker</title>
 <link rel="manifest" href="manifest.json">
 <style>
 body{font-family:Arial;background:#0f172a;color:#fff;margin:0;padding:10px}
@@ -18,7 +18,7 @@ input,select{width:100%;padding:6px;border:none;border-radius:5px}
 </head>
 <body>
 
-<h2>Tracker PRO FIXED</h2>
+<h2>Sales Tracker</h2>
 
 <table>
 <thead>
@@ -40,6 +40,8 @@ input,select{width:100%;padding:6px;border:none;border-radius:5px}
 <script>
 let data = JSON.parse(localStorage.getItem("data")||"[]");
 
+const options = ["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
+
 function save(){
  localStorage.setItem("data",JSON.stringify(data));
 }
@@ -55,16 +57,15 @@ function render(){
  body.innerHTML="";
  data.forEach((r,i)=>{
  let p=calc(i);
+
+ let selectOptions = options.map(o => 
+  `<option ${r.sub==o?"selected":""}>${o}</option>`
+ ).join("");
+
  let tr=document.createElement("tr");
  tr.innerHTML=`
 <td><input value="${r.customer||""}" oninput="update(${i},'customer',this.value)"></td>
-<td>
-<select onchange="update(${i},'sub',this.value)">
-<option ${r.sub=="Netflix"?"selected":""}>Netflix</option>
-<option ${r.sub=="Shahid"?"selected":""}>Shahid</option>
-<option ${r.sub=="Internet"?"selected":""}>Internet</option>
-</select>
-</td>
+<td><select onchange="update(${i},'sub',this.value)">${selectOptions}</select></td>
 <td><input value="${r.cost||""}" oninput="update(${i},'cost',this.value)"></td>
 <td><input value="${r.sell||""}" oninput="update(${i},'sell',this.value)"></td>
 <td id="p${i}">${p.toFixed(2)}</td>
