@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<!-- 🔥 App Mode -->
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<!-- 🔥 ICON -->
+<link rel="apple-touch-icon" href="icon.png">
 
 <title>Fadi Store</title>
 
@@ -162,10 +168,8 @@ input,select{
 
 <script>
 
-/* DATA */
 let data = JSON.parse(localStorage.getItem("data")||"[]");
 
-/* OPTIONS */
 const options=["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
 
 let sub=document.getElementById("sub");
@@ -175,23 +179,19 @@ options.forEach(o=>{
  sub.add(opt);
 });
 
-/* SAVE */
 function save(){
  localStorage.setItem("data",JSON.stringify(data));
 }
 
-/* TIME */
 function getTime(){
  let d=new Date();
  return d.toLocaleString();
 }
 
-/* CALC */
 function calc(r){
  return (Number(r.sell)-Number(r.cost))||0;
 }
 
-/* NAV */
 function showPage(p){
  document.getElementById("homePage").style.display="none";
  document.getElementById("customersPage").style.display="none";
@@ -203,7 +203,6 @@ function showPage(p){
  }
 }
 
-/* RENDER */
 function render(){
 
  let list=document.getElementById("list");
@@ -246,7 +245,6 @@ function render(){
  document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
-/* ADD (FIXED) */
 function add(){
 
  let n=document.getElementById("name").value.trim();
@@ -271,12 +269,11 @@ function add(){
  render();
  showPage("customers");
 
- document.getElementById("name").value="";
- document.getElementById("cost").value="";
- document.getElementById("sell").value="";
+ name.value="";
+ cost.value="";
+ sell.value="";
 }
 
-/* DELETE */
 function del(i){
  if(confirm("Delete this customer?")){
    data.splice(i,1);
