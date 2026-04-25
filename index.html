@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="icon.png">
 
 <title>Fadi Store</title>
@@ -20,89 +21,134 @@ body{
   overflow:hidden;
 }
 
+/* APP */
+.app{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
 /* HEADER */
 .header{
   text-align:center;
-  padding:15px;
+  padding:12px;
   font-size:20px;
   font-weight:700;
 }
 
-/* CONTENT */
-.content{
-  height:calc(100vh - 120px);
-  overflow:auto;
-  padding:10px;
+/* NAV */
+.nav{
+  display:flex;
+  gap:10px;
+  padding:0 12px;
 }
 
-/* GLASS BOX */
+.nav button{
+  flex:1;
+  height:48px;
+  border:none;
+  border-radius:14px;
+  background:#1e293b;
+  color:#94a3b8;
+  font-size:16px;
+}
+
+/* ACTIVE */
+.nav button:active{
+  background:#3b82f6;
+  color:white;
+}
+
+/* CONTENT */
+.content{
+  flex:1;
+  overflow:auto;
+}
+
+/* BOX */
 .box{
-  background:rgba(30,41,59,0.4);
-  backdrop-filter:blur(20px);
-  border-radius:20px;
-  padding:15px;
-  margin-bottom:15px;
+  margin:12px;
+  background:#0f172a;
+  padding:14px;
+  border-radius:18px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.5);
 }
 
 /* INPUT */
 input,select{
   width:100%;
-  padding:14px;
+  height:48px;
+  padding:0 12px;
   margin-top:10px;
-  border-radius:14px;
+  border-radius:12px;
   border:none;
   background:#1e293b;
   color:white;
+  font-size:15px;
 }
 
-/* BUTTON */
+/* ADD BUTTON */
 .add{
   margin-top:12px;
   width:100%;
-  padding:14px;
+  height:48px;
   border:none;
-  border-radius:14px;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  color:black;
+  border-radius:12px;
+  background:linear-gradient(135deg,#3b82f6,#6366f1);
+  color:white;
   font-weight:bold;
+  font-size:16px;
+}
+
+/* SEARCH */
+.search{
+  margin:12px;
+  width:calc(100% - 24px);
+  height:48px;
+  padding:0 12px;
+  border-radius:12px;
+  border:none;
+  background:#1e293b;
 }
 
 /* CARD */
 .card{
-  background:linear-gradient(180deg,#0f172a,#020617);
-  border-radius:20px;
-  padding:15px;
-  margin-bottom:10px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.6);
-  animation:fade 0.3s ease;
-}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1}
+  margin:10px 12px;
+  background:#0f172a;
+  border-radius:18px;
+  padding:14px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.4);
 }
 
 /* HEADER CARD */
-.card-top{
+.card-header{
   display:flex;
   justify-content:space-between;
+  align-items:center;
 }
 
 .name{
+  font-size:15px;
   font-weight:600;
-  font-size:16px;
 }
 
 .time{
   font-size:11px;
+  color:#64748b;
+}
+
+.sub{
+  font-size:13px;
   color:#94a3b8;
+  margin-top:5px;
 }
 
 /* ROW */
 .row{
   display:flex;
   justify-content:space-between;
-  margin-top:6px;
+  margin-top:4px;
+  font-size:14px;
 }
 
 /* COLORS */
@@ -110,59 +156,22 @@ input,select{
 .red{color:#ef4444}
 
 /* DELETE */
-.delete{
+.delete-x{
   background:#ef4444;
   border:none;
-  width:26px;
-  height:26px;
+  width:22px;
+  height:22px;
   border-radius:50%;
   color:white;
-}
-
-/* SEARCH */
-.search{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:none;
-  background:#1e293b;
-  margin-bottom:10px;
+  font-size:14px;
 }
 
 /* TOTAL */
 .total{
   text-align:center;
-  margin-top:10px;
+  margin:15px;
   font-size:18px;
   color:#94a3b8;
-}
-
-/* BOTTOM NAV */
-.nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  display:flex;
-  background:rgba(15,23,42,0.8);
-  backdrop-filter:blur(20px);
-  padding:10px;
-  gap:10px;
-}
-
-.nav button{
-  flex:1;
-  padding:12px;
-  border:none;
-  border-radius:14px;
-  background:#1e293b;
-  color:white;
-  font-size:18px;
-}
-
-.nav button.active{
-  background:#22c55e;
-  color:black;
 }
 
 </style>
@@ -170,7 +179,14 @@ input,select{
 
 <body>
 
+<div class="app">
+
 <div class="header">Fadi Store</div>
+
+<div class="nav">
+<button onclick="showPage('home')">🏠</button>
+<button onclick="showPage('customers')">👥</button>
+</div>
 
 <div class="content">
 
@@ -193,18 +209,13 @@ input,select{
 </div>
 
 </div>
-
-<!-- NAV -->
-<div class="nav">
-<button onclick="showPage('home',this)" class="active">🏠</button>
-<button onclick="showPage('customers',this)">👥</button>
 </div>
 
 <script>
 
 let data = JSON.parse(localStorage.getItem("data")||"[]");
 
-const options=["None","Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
+const options=["NoneNetflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
 
 let sub=document.getElementById("sub");
 options.forEach(o=>{
@@ -225,13 +236,9 @@ function calc(r){
  return (Number(r.sell)-Number(r.cost))||0;
 }
 
-function showPage(p,btn){
-
+function showPage(p){
  homePage.style.display="none";
  customersPage.style.display="none";
-
- document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
- btn.classList.add("active");
 
  if(p==="home") homePage.style.display="block";
  if(p==="customers"){
@@ -259,33 +266,37 @@ function render(){
  list.innerHTML+=`
  <div class="card">
 
-  <div class="card-top">
-    <div>
-      <div class="name">${r.name}</div>
-      <div class="time">${r.time}</div>
-    </div>
-    <button class="delete" onclick="del(${i})">×</button>
-  </div>
+   <div class="card-header">
+     <div>
+       <div class="name">${r.name}</div>
+       <div class="time">${r.time}</div>
+     </div>
+     <button class="delete-x" onclick="del(${i})">×</button>
+   </div>
 
-  <div style="margin-top:6px">${r.sub}</div>
+   <div class="sub">${r.sub}</div>
 
-  <div class="row"><span>Cost</span><span>${cost.toFixed(2)}$</span></div>
-  <div class="row"><span>Sell</span><span>${sell.toFixed(2)}$</span></div>
+   <div class="row"><span>Cost</span><span>${cost.toFixed(2)}$</span></div>
+   <div class="row"><span>Sell</span><span>${sell.toFixed(2)}$</span></div>
 
-  <div class="row">
-    <span>Profit</span>
-    <span class="${p>=0?'green':'red'}">${p.toFixed(2)}$</span>
-  </div>
+   <div class="row">
+     <span>Profit</span>
+     <span class="${p>=0?'green':'red'}">${p.toFixed(2)}$</span>
+   </div>
 
  </div>`;
  });
 
- total.innerText="Total: "+total.toFixed(2)+" $";
+ document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
+/* ADD */
 function add(){
 
  let n=document.getElementById("name").value.trim();
+ let s=document.getElementById("sub").value;
+ let c=document.getElementById("cost").value;
+ let se=document.getElementById("sell").value;
 
  if(!n){
    alert("Enter name");
@@ -294,18 +305,19 @@ function add(){
 
  data.unshift({
    name:n,
-   sub:sub.value,
-   cost:parseFloat(cost.value)||0,
-   sell:parseFloat(sell.value)||0,
+   sub:s,
+   cost:parseFloat(c)||0,
+   sell:parseFloat(se)||0,
    time:getTime()
  });
 
  save();
  render();
+ showPage("customers");
 
- name.value="";
- cost.value="";
- sell.value="";
+ document.getElementById("name").value="";
+ document.getElementById("cost").value="";
+ document.getElementById("sell").value="";
 }
 
 function del(i){
