@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <title>Fadi Store</title>
@@ -32,6 +31,9 @@ h1{text-align:center;margin-bottom:15px}
 
 .nav button{
   flex:1;
+  background:#22c55e;
+  color:black;
+  font-size:18px;
 }
 
 .box{
@@ -95,12 +97,9 @@ button{
 <div id="homePage">
 <div class="box">
 <input placeholder="Customer Name" id="name">
-
 <select id="sub"></select>
-
 <input type="number" placeholder="Cost $" id="cost">
 <input type="number" placeholder="Sell $" id="sell">
-
 <button onclick="add()">+ Add</button>
 </div>
 </div>
@@ -119,7 +118,14 @@ button{
 
 <script>
 
-let data = JSON.parse(localStorage.getItem("data")||"[]");
+// 🔥 حل المشكلة: إذا في بيانات قديمة فيها undefined → تنظيف
+let data = JSON.parse(localStorage.getItem("data")||"[]")
+  .map(r => ({
+    name: r.name || "",
+    sub: r.sub || "",
+    cost: r.cost || 0,
+    sell: r.sell || 0
+  }));
 
 const options=["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
 
@@ -157,26 +163,6 @@ function showPage(p){
  }
 }
 
-/* swipe */
-let start=0;
-
-function startX(e){
- start=e.changedTouches[0].screenX;
-}
-
-function endX(e,i){
- let end=e.changedTouches[0].screenX;
- if(start-end>80){
-   confirmDelete(i);
- }
-}
-
-function confirmDelete(i){
- if(confirm("Delete this customer?")){
-   del(i);
- }
-}
-
 function render(){
  let list=document.getElementById("list");
  let keyword=document.getElementById("search").value.toLowerCase();
@@ -192,9 +178,9 @@ function render(){
  let color=p>=0?"#22c55e":"#ef4444";
 
  list.innerHTML+=`
- <div class="card" ontouchstart="startX(event)" ontouchend="endX(event,${i})">
+ <div class="card">
   <div style="display:flex;justify-content:space-between">
-   <b>${r.name}</b>
+   <b>${r.name || "No Name"}</b>
    <span>${r.sub}</span>
   </div>
 
@@ -212,23 +198,24 @@ function render(){
 }
 
 function add(){
- let n=name.value;
- let s=sub.value;
- let c=cost.value;
- let se=sell.value;
+ let n = document.getElementById("name").value.trim();
+ let s = document.getElementById("sub").value;
+ let c = document.getElementById("cost").value;
+ let se = document.getElementById("sell").value;
+
+ if(!n){
+   alert("Enter name");
+   return;
+ }
 
  data.push({name:n,sub:s,cost:c,sell:se});
- save();
 
- name.value="";
- cost.value="";
- sell.value="";
-}
-
-function del(i){
- data.splice(i,1);
  save();
- render();
+ render(); // 🔥 مهم
+
+ document.getElementById("name").value="";
+ document.getElementById("cost").value="";
+ document.getElementById("sell").value="";
 }
 
 function showReport(){
