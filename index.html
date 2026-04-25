@@ -15,7 +15,10 @@ body{
   padding:15px;
 }
 
-h1{text-align:center;margin-bottom:20px}
+h1{
+  text-align:center;
+  margin-bottom:20px;
+}
 
 /* NAV */
 .nav{
@@ -60,7 +63,7 @@ input,select{
   border-radius:12px;
 }
 
-/* CARD WRAP */
+/* CARDS */
 .card-wrap{
   position:relative;
   overflow:hidden;
@@ -68,7 +71,6 @@ input,select{
   margin-top:12px;
 }
 
-/* DELETE BACK */
 .delete-btn{
   position:absolute;
   right:0;
@@ -82,7 +84,6 @@ input,select{
   font-weight:bold;
 }
 
-/* CARD */
 .card{
   background:#0f172a;
   padding:15px;
@@ -149,8 +150,10 @@ input,select{
 
 <script>
 
+/* DATA */
 let data = JSON.parse(localStorage.getItem("data")||"[]");
 
+/* OPTIONS */
 const options=["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
 
 let sub=document.getElementById("sub");
@@ -160,14 +163,17 @@ options.forEach(o=>{
  sub.add(opt);
 });
 
+/* SAVE */
 function save(){
  localStorage.setItem("data",JSON.stringify(data));
 }
 
+/* CALC */
 function calc(r){
  return (Number(r.sell)-Number(r.cost))||0;
 }
 
+/* NAV */
 function showPage(p){
  homePage.style.display="none";
  customersPage.style.display="none";
@@ -178,7 +184,7 @@ function showPage(p){
  if(p==="report"){reportPage.style.display="block"; showReport();}
 }
 
-/* 🔥 SWIPE */
+/* SWIPE */
 let startX = 0;
 let currentX = 0;
 let isDragging = false;
@@ -196,7 +202,7 @@ function touchMove(e, el){
  let diff = currentX - startX;
 
  if(diff < 0){
-   e.preventDefault(); // 🔥 يمنع تحريك الشاشة
+   e.preventDefault();
    el.style.transform = `translateX(${diff}px)`;
  }
 }
@@ -225,7 +231,10 @@ function render(){
 
  if(r.name && !r.name.toLowerCase().includes(keyword)) return;
 
- let p=calc(r);
+ let cost = parseFloat(r.cost) || 0;
+ let sell = parseFloat(r.sell) || 0;
+ let p = sell - cost;
+
  total+=p;
 
  let wrap=document.createElement("div");
@@ -237,12 +246,15 @@ function render(){
  <div class="card">
    <div style="display:flex;justify-content:space-between">
      <b>${r.name || "No Name"}</b>
-     <span>${r.sub}</span>
+     <span>${r.sub || ""}</span>
    </div>
 
-   <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
-   <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
-   <div class="row"><span>Profit</span><span style="color:#22c55e">${p.toFixed(2)}$</span></div>
+   <div class="row"><span>Cost</span><span>${cost.toFixed(2)}$</span></div>
+   <div class="row"><span>Sell</span><span>${sell.toFixed(2)}$</span></div>
+   <div class="row">
+     <span>Profit</span>
+     <span style="color:${p>=0 ? "#22c55e" : "#ef4444"}">${p.toFixed(2)}$</span>
+   </div>
  </div>
  `;
 
@@ -252,25 +264,30 @@ function render(){
  card.ontouchmove = (e)=>touchMove(e, card);
  card.ontouchend = (e)=>touchEnd(e, card);
 
+ card.style.transform = "translateX(0)";
+
  list.appendChild(wrap);
  });
 
- totalEl.innerText="Total: "+total.toFixed(2)+" $";
+ document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
 /* ADD */
 function add(){
- let n=document.getElementById("name").value.trim();
- let s=sub.value;
- let c=cost.value;
- let se=sell.value;
+ let n=name.value.trim();
 
  if(!n){
    alert("Enter name");
    return;
  }
 
- data.push({name:n,sub:s,cost:c,sell:se});
+ data.push({
+   name:n,
+   sub:sub.value,
+   cost:parseFloat(cost.value) || 0,
+   sell:parseFloat(sell.value) || 0
+ });
+
  save();
  render();
  showPage("customers");
