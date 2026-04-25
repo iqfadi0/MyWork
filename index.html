@@ -5,11 +5,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-<!-- 🔥 App Mode -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<!-- 🔥 ICON -->
 <link rel="apple-touch-icon" href="icon.png">
 
 <title>Fadi Store</title>
@@ -18,42 +15,62 @@
 
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont;
+  font-family:-apple-system;
   background:#020617;
   color:white;
-  padding:12px;
+  overflow:hidden;
+}
+
+/* APP */
+.app{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
 /* HEADER */
-h1{
+.header{
   text-align:center;
-  margin:10px 0 20px;
-  font-size:22px;
+  padding:15px;
+  font-size:20px;
   font-weight:700;
 }
 
 /* NAV */
 .nav{
   display:flex;
-  gap:8px;
-  margin-bottom:15px;
+  gap:10px;
+  padding:0 12px;
 }
 
 .nav button{
   flex:1;
   padding:12px;
   border:none;
-  border-radius:14px;
+  border-radius:16px;
+  background:#1e293b;
+  color:#94a3b8;
+  font-size:18px;
+}
+
+.nav button:active{
   background:#22c55e;
-  font-size:16px;
+  color:black;
+}
+
+/* CONTENT */
+.content{
+  flex:1;
+  overflow:auto;
 }
 
 /* BOX */
 .box{
+  margin:12px;
   background:#0f172a;
   padding:15px;
   border-radius:20px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.4);
+  box-shadow:0 5px 20px rgba(0,0,0,0.5);
 }
 
 /* INPUT */
@@ -65,39 +82,70 @@ input,select{
   border:none;
   background:#1e293b;
   color:white;
-  font-size:15px;
 }
 
 /* ADD BUTTON */
 .add{
-  width:100%;
   margin-top:12px;
-  padding:15px;
+  width:100%;
+  padding:14px;
   border:none;
   border-radius:14px;
-  background:#22c55e;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
   color:black;
   font-weight:bold;
-  font-size:16px;
+}
+
+/* SEARCH */
+.search{
+  margin:12px;
+  width:calc(100% - 24px);
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  background:#1e293b;
 }
 
 /* CARD */
 .card{
+  margin:10px 12px;
   background:#0f172a;
   border-radius:20px;
   padding:15px;
-  margin-top:12px;
-  box-shadow:0 6px 20px rgba(0,0,0,0.3);
+  box-shadow:0 4px 15px rgba(0,0,0,0.4);
 }
 
+/* HEADER CARD */
+.card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.name{
+  font-size:16px;
+  font-weight:600;
+}
+
+.time{
+  font-size:11px;
+  color:#64748b;
+}
+
+.sub{
+  font-size:14px;
+  color:#94a3b8;
+  margin-top:6px;
+}
+
+/* ROW */
 .row{
   display:flex;
   justify-content:space-between;
-  margin-top:6px;
-  font-size:14px;
+  margin-top:5px;
 }
 
-/* PROFIT */
+/* COLORS */
 .green{color:#22c55e}
 .red{color:#ef4444}
 
@@ -105,35 +153,18 @@ input,select{
 .delete-x{
   background:#ef4444;
   border:none;
-  width:26px;
-  height:26px;
+  width:24px;
+  height:24px;
   border-radius:50%;
   color:white;
-  font-size:16px;
-}
-
-/* SEARCH */
-.search{
-  width:100%;
-  padding:14px;
-  border-radius:14px;
-  border:none;
-  background:#1e293b;
-  margin-bottom:10px;
-}
-
-/* TIME */
-.time{
-  font-size:11px;
-  color:#94a3b8;
-  margin-top:3px;
 }
 
 /* TOTAL */
 .total{
   text-align:center;
-  margin-top:20px;
-  font-size:20px;
+  margin:15px;
+  font-size:18px;
+  color:#94a3b8;
 }
 
 </style>
@@ -141,12 +172,16 @@ input,select{
 
 <body>
 
-<h1>Fadi Store</h1>
+<div class="app">
+
+<div class="header">Fadi Store</div>
 
 <div class="nav">
 <button onclick="showPage('home')">🏠</button>
 <button onclick="showPage('customers')">👥</button>
 </div>
+
+<div class="content">
 
 <!-- HOME -->
 <div id="homePage">
@@ -164,6 +199,9 @@ input,select{
 <input id="search" class="search" placeholder="Search..." oninput="render()">
 <div id="list"></div>
 <div id="total" class="total"></div>
+</div>
+
+</div>
 </div>
 
 <script>
@@ -184,8 +222,7 @@ function save(){
 }
 
 function getTime(){
- let d=new Date();
- return d.toLocaleString();
+ return new Date().toLocaleString();
 }
 
 function calc(r){
@@ -193,12 +230,12 @@ function calc(r){
 }
 
 function showPage(p){
- document.getElementById("homePage").style.display="none";
- document.getElementById("customersPage").style.display="none";
+ homePage.style.display="none";
+ customersPage.style.display="none";
 
- if(p==="home") document.getElementById("homePage").style.display="block";
+ if(p==="home") homePage.style.display="block";
  if(p==="customers"){
-   document.getElementById("customersPage").style.display="block";
+   customersPage.style.display="block";
    render();
  }
 }
@@ -222,14 +259,15 @@ function render(){
  list.innerHTML+=`
  <div class="card">
 
-   <div style="display:flex;justify-content:space-between">
-     <b>${r.name}</b>
+   <div class="card-header">
+     <div>
+       <div class="name">${r.name}</div>
+       <div class="time">${r.time}</div>
+     </div>
      <button class="delete-x" onclick="del(${i})">×</button>
    </div>
 
-   <div class="time">${r.time}</div>
-
-   <div>${r.sub}</div>
+   <div class="sub">${r.sub}</div>
 
    <div class="row"><span>Cost</span><span>${cost.toFixed(2)}$</span></div>
    <div class="row"><span>Sell</span><span>${sell.toFixed(2)}$</span></div>
@@ -245,6 +283,7 @@ function render(){
  document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
+/* ADD FIXED */
 function add(){
 
  let n=document.getElementById("name").value.trim();
@@ -269,9 +308,9 @@ function add(){
  render();
  showPage("customers");
 
- name.value="";
- cost.value="";
- sell.value="";
+ document.getElementById("name").value="";
+ document.getElementById("cost").value="";
+ document.getElementById("sell").value="";
 }
 
 function del(i){
