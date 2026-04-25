@@ -10,16 +10,12 @@
 body{
   margin:0;
   font-family:-apple-system;
-  background:linear-gradient(180deg,#020617,#020617,#020617,#0f172a);
+  background:#020617;
   color:white;
   padding:15px;
 }
 
-h1{
-  text-align:center;
-  margin-bottom:20px;
-  font-weight:700;
-}
+h1{text-align:center;margin-bottom:20px}
 
 /* NAV */
 .nav{
@@ -34,16 +30,13 @@ h1{
   border:none;
   border-radius:12px;
   padding:12px;
-  font-size:18px;
 }
 
 /* BOX */
 .box{
-  background:rgba(30,41,59,0.6);
-  backdrop-filter:blur(10px);
+  background:#0f172a;
   padding:15px;
   border-radius:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
 input,select{
@@ -56,7 +49,7 @@ input,select{
   color:white;
 }
 
-button.add{
+.add{
   width:100%;
   margin-top:10px;
   background:#22c55e;
@@ -67,14 +60,15 @@ button.add{
   border-radius:12px;
 }
 
-/* CARD */
+/* CARD WRAP */
 .card-wrap{
   position:relative;
   overflow:hidden;
-  margin-top:12px;
   border-radius:20px;
+  margin-top:12px;
 }
 
+/* DELETE BACK */
 .delete-btn{
   position:absolute;
   right:0;
@@ -88,15 +82,12 @@ button.add{
   font-weight:bold;
 }
 
+/* CARD */
 .card{
   background:#0f172a;
   padding:15px;
   border-radius:20px;
   transition:0.3s;
-}
-
-.card.swiped{
-  transform:translateX(-90px);
 }
 
 .row{
@@ -105,15 +96,12 @@ button.add{
   margin-top:6px;
 }
 
-.profit{color:#22c55e}
-
 .total{
   text-align:center;
   margin-top:20px;
   font-size:22px;
 }
 
-/* SEARCH */
 .search{
   width:100%;
   padding:14px;
@@ -177,9 +165,7 @@ function save(){
 }
 
 function calc(r){
- let c=Number(r.cost);
- let s=Number(r.sell);
- return (s-c)||0;
+ return (Number(r.sell)-Number(r.cost))||0;
 }
 
 function showPage(p){
@@ -192,19 +178,39 @@ function showPage(p){
  if(p==="report"){reportPage.style.display="block"; showReport();}
 }
 
-/* SWIPE */
-let startX=0;
+/* 🔥 SWIPE */
+let startX = 0;
+let currentX = 0;
+let isDragging = false;
 
-function touchStart(e){
- startX=e.touches[0].clientX;
+function touchStart(e, el){
+ startX = e.touches[0].clientX;
+ isDragging = true;
+ el.style.transition = "none";
 }
 
-function touchEnd(e,el){
- let endX=e.changedTouches[0].clientX;
- if(startX-endX>70){
-   el.classList.add("swiped");
+function touchMove(e, el){
+ if(!isDragging) return;
+
+ currentX = e.touches[0].clientX;
+ let diff = currentX - startX;
+
+ if(diff < 0){
+   e.preventDefault(); // 🔥 يمنع تحريك الشاشة
+   el.style.transform = `translateX(${diff}px)`;
+ }
+}
+
+function touchEnd(e, el){
+ isDragging = false;
+ el.style.transition = "0.3s";
+
+ let diff = currentX - startX;
+
+ if(diff < -80){
+   el.style.transform = "translateX(-90px)";
  }else{
-   el.classList.remove("swiped");
+   el.style.transform = "translateX(0)";
  }
 }
 
@@ -226,12 +232,9 @@ function render(){
  wrap.className="card-wrap";
 
  wrap.innerHTML=`
- <div class="delete-btn" onclick="confirmDel(${i})">Delete</div>
+ <div class="delete-btn" onclick="del(${i})">Delete</div>
 
- <div class="card"
- ontouchstart="touchStart(event)"
- ontouchend="touchEnd(event,this)">
-
+ <div class="card">
    <div style="display:flex;justify-content:space-between">
      <b>${r.name || "No Name"}</b>
      <span>${r.sub}</span>
@@ -239,10 +242,15 @@ function render(){
 
    <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
    <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
-   <div class="row"><span>Profit</span><span class="profit">${p.toFixed(2)}$</span></div>
-
+   <div class="row"><span>Profit</span><span style="color:#22c55e">${p.toFixed(2)}$</span></div>
  </div>
  `;
+
+ let card = wrap.querySelector(".card");
+
+ card.ontouchstart = (e)=>touchStart(e, card);
+ card.ontouchmove = (e)=>touchMove(e, card);
+ card.ontouchend = (e)=>touchEnd(e, card);
 
  list.appendChild(wrap);
  });
@@ -272,8 +280,8 @@ function add(){
  sell.value="";
 }
 
-/* DELETE CONFIRM */
-function confirmDel(i){
+/* DELETE */
+function del(i){
  if(confirm("Delete this customer?")){
    data.splice(i,1);
    save();
