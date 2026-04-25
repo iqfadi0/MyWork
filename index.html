@@ -58,31 +58,11 @@ input,select{
   border-radius:12px;
 }
 
-.card-wrap{
-  position:relative;
-  overflow:hidden;
-  border-radius:20px;
-  margin-top:12px;
-}
-
-.delete-btn{
-  position:absolute;
-  right:0;
-  top:0;
-  bottom:0;
-  width:90px;
-  background:#ef4444;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:bold;
-}
-
 .card{
   background:#0f172a;
   padding:15px;
   border-radius:20px;
-  transition:0.3s;
+  margin-top:12px;
 }
 
 .row{
@@ -105,6 +85,18 @@ input,select{
   background:#1e293b;
   margin-bottom:10px;
   color:white;
+}
+
+/* ❌ زر الحذف الصغير */
+.delete-x{
+  background:#ef4444;
+  border:none;
+  color:white;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  font-weight:bold;
+  font-size:16px;
 }
 </style>
 </head>
@@ -173,42 +165,6 @@ function showPage(p){
  if(p==="report"){document.getElementById("reportPage").style.display="block"; showReport();}
 }
 
-/* SWIPE */
-let startX = 0;
-let currentX = 0;
-let isDragging = false;
-
-function touchStart(e, el){
- startX = e.touches[0].clientX;
- isDragging = true;
- el.style.transition = "none";
-}
-
-function touchMove(e, el){
- if(!isDragging) return;
-
- currentX = e.touches[0].clientX;
- let diff = currentX - startX;
-
- if(diff < 0){
-   e.preventDefault();
-   el.style.transform = `translateX(${diff}px)`;
- }
-}
-
-function touchEnd(e, el){
- isDragging = false;
- el.style.transition = "0.3s";
-
- let diff = currentX - startX;
-
- if(diff < -80){
-   el.style.transform = "translateX(-90px)";
- }else{
-   el.style.transform = "translateX(0)";
- }
-}
-
 /* RENDER */
 function render(){
  let list=document.getElementById("list");
@@ -226,40 +182,35 @@ function render(){
 
  total+=p;
 
- let wrap=document.createElement("div");
- wrap.className="card-wrap";
-
- wrap.innerHTML=`
- <div class="delete-btn" onclick="del(${i})">Delete</div>
-
+ list.innerHTML+=`
  <div class="card">
-   <div style="display:flex;justify-content:space-between">
+
+   <div style="display:flex;justify-content:space-between;align-items:center">
      <b>${r.name || "No Name"}</b>
+
+     <button class="delete-x" onclick="del(${i})">×</button>
+   </div>
+
+   <div style="display:flex;justify-content:space-between;margin-top:5px">
      <span>${r.sub || ""}</span>
    </div>
 
    <div class="row"><span>Cost</span><span>${cost.toFixed(2)}$</span></div>
    <div class="row"><span>Sell</span><span>${sell.toFixed(2)}$</span></div>
+
    <div class="row">
      <span>Profit</span>
      <span style="color:${p>=0 ? "#22c55e" : "#ef4444"}">${p.toFixed(2)}$</span>
    </div>
+
  </div>
  `;
-
- let card = wrap.querySelector(".card");
-
- card.ontouchstart = (e)=>touchStart(e, card);
- card.ontouchmove = (e)=>touchMove(e, card);
- card.ontouchend = (e)=>touchEnd(e, card);
-
- list.appendChild(wrap);
  });
 
  document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
-/* ✅ ADD (FIXED) */
+/* ADD */
 function add(){
 
  let n = document.getElementById("name").value.trim();
@@ -288,7 +239,7 @@ function add(){
  document.getElementById("sell").value="";
 }
 
-/* DELETE */
+/* ❌ DELETE WITH CONFIRM */
 function del(i){
  if(confirm("Delete this customer?")){
    data.splice(i,1);
@@ -297,6 +248,7 @@ function del(i){
  }
 }
 
+/* REPORT */
 function showReport(){
  let total=0;
  data.forEach(r=> total+=calc(r));
