@@ -230,6 +230,7 @@ function render(){
 
 function add(){
  let n=name.value.trim();
+
  if(!n){
    alert("Enter name");
    return;
@@ -243,6 +244,10 @@ function add(){
  });
 
  save();
+ render(); // 🔥 مهم
+
+ // 🔥 يوديك تلقائي للزبائن
+ showPage("customers");
 
  name.value="";
  cost.value="";
