@@ -87,7 +87,6 @@ input,select{
   color:white;
 }
 
-/* ❌ زر الحذف الصغير */
 .delete-x{
   background:#ef4444;
   border:none;
@@ -96,7 +95,6 @@ input,select{
   height:28px;
   border-radius:50%;
   font-weight:bold;
-  font-size:16px;
 }
 </style>
 </head>
@@ -165,7 +163,6 @@ function showPage(p){
  if(p==="report"){document.getElementById("reportPage").style.display="block"; showReport();}
 }
 
-/* RENDER */
 function render(){
  let list=document.getElementById("list");
  let keyword=document.getElementById("search").value.toLowerCase();
@@ -187,13 +184,10 @@ function render(){
 
    <div style="display:flex;justify-content:space-between;align-items:center">
      <b>${r.name || "No Name"}</b>
-
      <button class="delete-x" onclick="del(${i})">×</button>
    </div>
 
-   <div style="display:flex;justify-content:space-between;margin-top:5px">
-     <span>${r.sub || ""}</span>
-   </div>
+   <div style="margin-top:5px">${r.sub || ""}</div>
 
    <div class="row"><span>Cost</span><span>${cost.toFixed(2)}$</span></div>
    <div class="row"><span>Sell</span><span>${sell.toFixed(2)}$</span></div>
@@ -210,7 +204,7 @@ function render(){
  document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
-/* ADD */
+/* 🔥 ADD (الجديد فوق) */
 function add(){
 
  let n = document.getElementById("name").value.trim();
@@ -223,7 +217,7 @@ function add(){
    return;
  }
 
- data.push({
+ data.unshift({ // 🔥 الجديد فوق
    name:n,
    sub:s,
    cost:parseFloat(c) || 0,
@@ -239,7 +233,7 @@ function add(){
  document.getElementById("sell").value="";
 }
 
-/* ❌ DELETE WITH CONFIRM */
+/* DELETE */
 function del(i){
  if(confirm("Delete this customer?")){
    data.splice(i,1);
@@ -248,7 +242,6 @@ function del(i){
  }
 }
 
-/* REPORT */
 function showReport(){
  let total=0;
  data.forEach(r=> total+=calc(r));
