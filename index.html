@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
+<!-- 📱 App Mode -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+<!-- 🔥 ICON -->
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
 
 <title>Fadi Store</title>
 
@@ -10,12 +18,16 @@
 body{
   margin:0;
   font-family:-apple-system;
-  background:#020617;
+  background:linear-gradient(180deg,#020617,#0f172a);
   color:white;
   padding:15px;
 }
 
-h1{text-align:center;margin-bottom:20px}
+h1{
+  text-align:center;
+  margin-bottom:20px;
+  font-weight:700;
+}
 
 .nav{
   display:flex;
@@ -29,12 +41,16 @@ h1{text-align:center;margin-bottom:20px}
   border:none;
   border-radius:12px;
   padding:12px;
+  font-size:16px;
 }
 
+/* BOX */
 .box{
-  background:#0f172a;
+  background:rgba(15,23,42,0.7);
+  backdrop-filter:blur(10px);
   padding:15px;
   border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
 input,select{
@@ -58,11 +74,13 @@ input,select{
   border-radius:12px;
 }
 
+/* CARD */
 .card{
   background:#0f172a;
   padding:15px;
   border-radius:20px;
   margin-top:12px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.4);
 }
 
 .row{
@@ -95,6 +113,13 @@ input,select{
   height:28px;
   border-radius:50%;
   font-weight:bold;
+}
+
+/* ⏱️ تاريخ */
+.time{
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:4px;
 }
 </style>
 </head>
@@ -154,13 +179,19 @@ function calc(r){
 }
 
 function showPage(p){
- document.getElementById("homePage").style.display="none";
- document.getElementById("customersPage").style.display="none";
- document.getElementById("reportPage").style.display="none";
+ homePage.style.display="none";
+ customersPage.style.display="none";
+ reportPage.style.display="none";
 
- if(p==="home") document.getElementById("homePage").style.display="block";
- if(p==="customers"){document.getElementById("customersPage").style.display="block"; render();}
- if(p==="report"){document.getElementById("reportPage").style.display="block"; showReport();}
+ if(p==="home") homePage.style.display="block";
+ if(p==="customers"){customersPage.style.display="block"; render();}
+ if(p==="report"){reportPage.style.display="block"; showReport();}
+}
+
+/* ⏱️ تنسيق الوقت */
+function getTime(){
+ let d=new Date();
+ return d.toLocaleString();
 }
 
 function render(){
@@ -187,6 +218,8 @@ function render(){
      <button class="delete-x" onclick="del(${i})">×</button>
    </div>
 
+   <div class="time">${r.time || ""}</div>
+
    <div style="margin-top:5px">${r.sub || ""}</div>
 
    <div class="row"><span>Cost</span><span>${cost.toFixed(2)}$</span></div>
@@ -201,39 +234,36 @@ function render(){
  `;
  });
 
- document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
+ total.innerText="Total: "+total.toFixed(2)+" $";
 }
 
-/* 🔥 ADD (الجديد فوق) */
+/* 🔥 ADD مع الوقت */
 function add(){
 
- let n = document.getElementById("name").value.trim();
- let s = document.getElementById("sub").value;
- let c = document.getElementById("cost").value;
- let se = document.getElementById("sell").value;
+ let n=name.value.trim();
 
  if(!n){
    alert("Enter name");
    return;
  }
 
- data.unshift({ // 🔥 الجديد فوق
+ data.unshift({
    name:n,
-   sub:s,
-   cost:parseFloat(c) || 0,
-   sell:parseFloat(se) || 0
+   sub:sub.value,
+   cost:parseFloat(cost.value)||0,
+   sell:parseFloat(sell.value)||0,
+   time:getTime() // 🔥 التاريخ
  });
 
  save();
  render();
  showPage("customers");
 
- document.getElementById("name").value="";
- document.getElementById("cost").value="";
- document.getElementById("sell").value="";
+ name.value="";
+ cost.value="";
+ sell.value="";
 }
 
-/* DELETE */
 function del(i){
  if(confirm("Delete this customer?")){
    data.splice(i,1);
@@ -245,7 +275,7 @@ function del(i){
 function showReport(){
  let total=0;
  data.forEach(r=> total+=calc(r));
- document.getElementById("reportData").innerHTML="Total Profit: "+total.toFixed(2)+" $";
+ reportData.innerHTML="Total Profit: "+total.toFixed(2)+" $";
 }
 
 </script>
