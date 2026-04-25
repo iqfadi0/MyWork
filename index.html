@@ -3,124 +3,133 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- 📱 App Mode -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<!-- 🔥 ICON -->
-<link rel="apple-touch-icon" href="icon.png">
-<link rel="manifest" href="manifest.json">
 
 <title>Fadi Store</title>
 
 <style>
+
 body{
   margin:0;
-  font-family:-apple-system;
-  background:linear-gradient(180deg,#020617,#0f172a);
+  font-family:-apple-system,BlinkMacSystemFont;
+  background:#020617;
   color:white;
-  padding:15px;
+  padding:12px;
 }
 
+/* HEADER */
 h1{
   text-align:center;
-  margin-bottom:20px;
+  margin:10px 0 20px;
+  font-size:22px;
   font-weight:700;
 }
 
+/* NAV */
 .nav{
   display:flex;
-  gap:10px;
+  gap:8px;
   margin-bottom:15px;
 }
 
 .nav button{
   flex:1;
-  background:#22c55e;
-  border:none;
-  border-radius:12px;
   padding:12px;
+  border:none;
+  border-radius:14px;
+  background:#22c55e;
   font-size:16px;
 }
 
 /* BOX */
 .box{
-  background:rgba(15,23,42,0.7);
-  backdrop-filter:blur(10px);
+  background:#0f172a;
   padding:15px;
   border-radius:20px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+  box-shadow:0 10px 25px rgba(0,0,0,0.4);
 }
 
+/* INPUT */
 input,select{
   width:100%;
   padding:14px;
   margin-top:10px;
-  border-radius:12px;
+  border-radius:14px;
   border:none;
   background:#1e293b;
   color:white;
+  font-size:15px;
 }
 
+/* ADD BUTTON */
 .add{
   width:100%;
-  margin-top:10px;
+  margin-top:12px;
+  padding:15px;
+  border:none;
+  border-radius:14px;
   background:#22c55e;
   color:black;
   font-weight:bold;
-  padding:14px;
-  border:none;
-  border-radius:12px;
+  font-size:16px;
 }
 
 /* CARD */
 .card{
   background:#0f172a;
-  padding:15px;
   border-radius:20px;
+  padding:15px;
   margin-top:12px;
-  box-shadow:0 5px 20px rgba(0,0,0,0.4);
+  box-shadow:0 6px 20px rgba(0,0,0,0.3);
 }
 
 .row{
   display:flex;
   justify-content:space-between;
   margin-top:6px;
+  font-size:14px;
 }
 
-.total{
-  text-align:center;
-  margin-top:20px;
-  font-size:22px;
-}
+/* PROFIT */
+.green{color:#22c55e}
+.red{color:#ef4444}
 
-.search{
-  width:100%;
-  padding:14px;
-  border-radius:12px;
-  border:none;
-  background:#1e293b;
-  margin-bottom:10px;
-  color:white;
-}
-
+/* DELETE */
 .delete-x{
   background:#ef4444;
   border:none;
-  color:white;
-  width:28px;
-  height:28px;
+  width:26px;
+  height:26px;
   border-radius:50%;
-  font-weight:bold;
+  color:white;
+  font-size:16px;
 }
 
-/* ⏱️ تاريخ */
-.time{
-  font-size:12px;
-  color:#94a3b8;
-  margin-top:4px;
+/* SEARCH */
+.search{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:none;
+  background:#1e293b;
+  margin-bottom:10px;
 }
+
+/* TIME */
+.time{
+  font-size:11px;
+  color:#94a3b8;
+  margin-top:3px;
+}
+
+/* TOTAL */
+.total{
+  text-align:center;
+  margin-top:20px;
+  font-size:20px;
+}
+
 </style>
 </head>
 
@@ -131,36 +140,32 @@ input,select{
 <div class="nav">
 <button onclick="showPage('home')">🏠</button>
 <button onclick="showPage('customers')">👥</button>
-<button onclick="showPage('report')">📊</button>
 </div>
 
 <!-- HOME -->
 <div id="homePage">
 <div class="box">
-<input placeholder="Customer Name" id="name">
+<input id="name" placeholder="Customer Name">
 <select id="sub"></select>
-<input type="number" placeholder="Cost $" id="cost">
-<input type="number" placeholder="Sell $" id="sell">
+<input id="cost" type="number" placeholder="Cost $">
+<input id="sell" type="number" placeholder="Sell $">
 <button class="add" onclick="add()">+ Add</button>
 </div>
 </div>
 
 <!-- CUSTOMERS -->
 <div id="customersPage" style="display:none">
-<input class="search" placeholder="🔍 Search..." id="search" oninput="render()">
+<input id="search" class="search" placeholder="Search..." oninput="render()">
 <div id="list"></div>
-<div class="total" id="total"></div>
-</div>
-
-<!-- REPORT -->
-<div id="reportPage" style="display:none">
-<div id="reportData"></div>
+<div id="total" class="total"></div>
 </div>
 
 <script>
 
+/* DATA */
 let data = JSON.parse(localStorage.getItem("data")||"[]");
 
+/* OPTIONS */
 const options=["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
 
 let sub=document.getElementById("sub");
@@ -170,31 +175,37 @@ options.forEach(o=>{
  sub.add(opt);
 });
 
+/* SAVE */
 function save(){
  localStorage.setItem("data",JSON.stringify(data));
 }
 
-function calc(r){
- return (Number(r.sell)-Number(r.cost))||0;
-}
-
-function showPage(p){
- homePage.style.display="none";
- customersPage.style.display="none";
- reportPage.style.display="none";
-
- if(p==="home") homePage.style.display="block";
- if(p==="customers"){customersPage.style.display="block"; render();}
- if(p==="report"){reportPage.style.display="block"; showReport();}
-}
-
-/* ⏱️ تنسيق الوقت */
+/* TIME */
 function getTime(){
  let d=new Date();
  return d.toLocaleString();
 }
 
+/* CALC */
+function calc(r){
+ return (Number(r.sell)-Number(r.cost))||0;
+}
+
+/* NAV */
+function showPage(p){
+ document.getElementById("homePage").style.display="none";
+ document.getElementById("customersPage").style.display="none";
+
+ if(p==="home") document.getElementById("homePage").style.display="block";
+ if(p==="customers"){
+   document.getElementById("customersPage").style.display="block";
+   render();
+ }
+}
+
+/* RENDER */
 function render(){
+
  let list=document.getElementById("list");
  let keyword=document.getElementById("search").value.toLowerCase();
  list.innerHTML="";
@@ -204,43 +215,44 @@ function render(){
 
  if(r.name && !r.name.toLowerCase().includes(keyword)) return;
 
- let cost = parseFloat(r.cost) || 0;
- let sell = parseFloat(r.sell) || 0;
- let p = sell - cost;
-
+ let cost=parseFloat(r.cost)||0;
+ let sell=parseFloat(r.sell)||0;
+ let p=sell-cost;
  total+=p;
 
  list.innerHTML+=`
  <div class="card">
 
-   <div style="display:flex;justify-content:space-between;align-items:center">
-     <b>${r.name || "No Name"}</b>
+   <div style="display:flex;justify-content:space-between">
+     <b>${r.name}</b>
      <button class="delete-x" onclick="del(${i})">×</button>
    </div>
 
-   <div class="time">${r.time || ""}</div>
+   <div class="time">${r.time}</div>
 
-   <div style="margin-top:5px">${r.sub || ""}</div>
+   <div>${r.sub}</div>
 
    <div class="row"><span>Cost</span><span>${cost.toFixed(2)}$</span></div>
    <div class="row"><span>Sell</span><span>${sell.toFixed(2)}$</span></div>
 
    <div class="row">
      <span>Profit</span>
-     <span style="color:${p>=0 ? "#22c55e" : "#ef4444"}">${p.toFixed(2)}$</span>
+     <span class="${p>=0?'green':'red'}">${p.toFixed(2)}$</span>
    </div>
 
- </div>
- `;
+ </div>`;
  });
 
- total.innerText="Total: "+total.toFixed(2)+" $";
+ document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
-/* 🔥 ADD مع الوقت */
+/* ADD (FIXED) */
 function add(){
 
- let n=name.value.trim();
+ let n=document.getElementById("name").value.trim();
+ let s=document.getElementById("sub").value;
+ let c=document.getElementById("cost").value;
+ let se=document.getElementById("sell").value;
 
  if(!n){
    alert("Enter name");
@@ -249,33 +261,28 @@ function add(){
 
  data.unshift({
    name:n,
-   sub:sub.value,
-   cost:parseFloat(cost.value)||0,
-   sell:parseFloat(sell.value)||0,
-   time:getTime() // 🔥 التاريخ
+   sub:s,
+   cost:parseFloat(c)||0,
+   sell:parseFloat(se)||0,
+   time:getTime()
  });
 
  save();
  render();
  showPage("customers");
 
- name.value="";
- cost.value="";
- sell.value="";
+ document.getElementById("name").value="";
+ document.getElementById("cost").value="";
+ document.getElementById("sell").value="";
 }
 
+/* DELETE */
 function del(i){
  if(confirm("Delete this customer?")){
    data.splice(i,1);
    save();
    render();
  }
-}
-
-function showReport(){
- let total=0;
- data.forEach(r=> total+=calc(r));
- reportData.innerHTML="Total Profit: "+total.toFixed(2)+" $";
 }
 
 </script>
