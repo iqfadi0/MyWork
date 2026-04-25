@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <title>Fadi Store</title>
@@ -31,22 +32,19 @@ h1{text-align:center;margin-bottom:15px}
 
 .nav button{
   flex:1;
-  background:#22c55e;
-  color:black;
-  font-size:18px;
 }
 
 .box{
   background:#0f172a;
   padding:15px;
-  border-radius:20px;
+  border-radius:15px;
 }
 
 input,select{
   width:100%;
   padding:14px;
   margin-top:10px;
-  border-radius:12px;
+  border-radius:10px;
   border:none;
   background:#1e293b;
   color:white;
@@ -56,7 +54,7 @@ button{
   padding:14px;
   margin-top:10px;
   border:none;
-  border-radius:12px;
+  border-radius:10px;
   background:#22c55e;
   color:black;
   font-weight:bold;
@@ -65,36 +63,20 @@ button{
 .card{
   background:#0f172a;
   padding:15px;
-  border-radius:20px;
-  margin-top:12px;
-  transition:0.3s;
-}
-
-.card.swipe{
-  transform:translateX(-80px);
-  opacity:0.5;
+  border-radius:15px;
+  margin-top:10px;
 }
 
 .row{
   display:flex;
   justify-content:space-between;
-  margin-top:6px;
+  margin-top:5px;
 }
 
 .total{
   text-align:center;
   margin-top:20px;
-  font-size:22px;
-}
-
-.search{
-  padding:14px;
-  border-radius:12px;
-  border:none;
-  background:#1e293b;
-  color:white;
-  width:100%;
-  margin-bottom:10px;
+  font-size:20px;
 }
 </style>
 </head>
@@ -109,22 +91,28 @@ button{
 <button onclick="showPage('report')">📊</button>
 </div>
 
+<!-- HOME -->
 <div id="homePage">
 <div class="box">
 <input placeholder="Customer Name" id="name">
+
 <select id="sub"></select>
+
 <input type="number" placeholder="Cost $" id="cost">
 <input type="number" placeholder="Sell $" id="sell">
+
 <button onclick="add()">+ Add</button>
 </div>
 </div>
 
+<!-- CUSTOMERS -->
 <div id="customersPage" style="display:none">
-<input class="search" placeholder="🔍 Search..." id="search" oninput="render()">
+<input placeholder="🔍 Search..." id="search" oninput="render()">
 <div id="list"></div>
 <div class="total" id="total"></div>
 </div>
 
+<!-- REPORT -->
 <div id="reportPage" style="display:none">
 <div id="reportData"></div>
 </div>
@@ -135,8 +123,7 @@ let data = JSON.parse(localStorage.getItem("data")||"[]");
 
 const options=["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
 
-const sub = document.getElementById("sub");
-
+let sub=document.getElementById("sub");
 options.forEach(o=>{
  let opt=document.createElement("option");
  opt.text=o;
@@ -160,32 +147,33 @@ function showPage(p){
  document.getElementById("reportPage").style.display="none";
 
  if(p==="home") document.getElementById("homePage").style.display="block";
- if(p==="customers"){document.getElementById("customersPage").style.display="block"; render();}
- if(p==="report"){document.getElementById("reportPage").style.display="block"; showReport();}
+ if(p==="customers"){
+   document.getElementById("customersPage").style.display="block";
+   render();
+ }
+ if(p==="report"){
+   document.getElementById("reportPage").style.display="block";
+   showReport();
+ }
 }
 
 /* swipe */
-let startX=0;
+let start=0;
 
-function touchStart(e){
- startX=e.touches[0].clientX;
+function startX(e){
+ start=e.changedTouches[0].screenX;
 }
 
-function touchEnd(e,i,el){
- let endX=e.changedTouches[0].clientX;
+function endX(e,i){
+ let end=e.changedTouches[0].screenX;
+ if(start-end>80){
+   confirmDelete(i);
+ }
+}
 
- if(startX-endX>80){
-   el.classList.add("swipe");
-
-   setTimeout(()=>{
-     if(confirm("Delete this customer?")){
-       data.splice(i,1);
-       save();
-       render();
-     }else{
-       el.classList.remove("swipe");
-     }
-   },200);
+function confirmDelete(i){
+ if(confirm("Delete this customer?")){
+   del(i);
  }
 }
 
@@ -203,64 +191,59 @@ function render(){
 
  let color=p>=0?"#22c55e":"#ef4444";
 
- let div=document.createElement("div");
- div.className="card";
-
- div.ontouchstart=(e)=>touchStart(e);
- div.ontouchend=(e)=>touchEnd(e,i,div);
-
- div.innerHTML=`
- <div style="display:flex;justify-content:space-between">
-   <b>${r.name || "Unknown"}</b>
+ list.innerHTML+=`
+ <div class="card" ontouchstart="startX(event)" ontouchend="endX(event,${i})">
+  <div style="display:flex;justify-content:space-between">
+   <b>${r.name}</b>
    <span>${r.sub}</span>
- </div>
+  </div>
 
- <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
- <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
+  <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
+  <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
 
- <div class="row">
+  <div class="row">
    <span>Profit</span>
    <span style="color:${color}">${p.toFixed(2)}$</span>
- </div>
- `;
-
- list.appendChild(div);
+  </div>
+ </div>`;
  });
 
  document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
 function add(){
- let n = document.getElementById("name").value.trim();
- let s = document.getElementById("sub").value;
- let c = document.getElementById("cost").value;
- let se = document.getElementById("sell").value;
-
- if(!n){
-   alert("Enter name");
-   return;
- }
+ let n=name.value;
+ let s=sub.value;
+ let c=cost.value;
+ let se=sell.value;
 
  data.push({name:n,sub:s,cost:c,sell:se});
+ save();
 
+ name.value="";
+ cost.value="";
+ sell.value="";
+}
+
+function del(i){
+ data.splice(i,1);
  save();
  render();
- showPage("customers");
-
- document.getElementById("name").value="";
- document.getElementById("cost").value="";
- document.getElementById("sell").value="";
 }
 
 function showReport(){
- let total=0;
+ let total=0,count=data.length,best=0;
 
  data.forEach(r=>{
-  total+=calc(r);
+  let p=calc(r);
+  total+=p;
+  if(p>best) best=p;
  });
 
  document.getElementById("reportData").innerHTML=
- "Total Profit: "+total.toFixed(2)+" $";
+ `Total Profit: ${total.toFixed(2)} $<br>
+ Customers: ${count}<br>
+ Best Profit: ${best.toFixed(2)} $`;
 }
 
 </script>
