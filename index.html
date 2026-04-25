@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <title>Fadi Store</title>
@@ -32,19 +31,22 @@ h1{text-align:center;margin-bottom:15px}
 
 .nav button{
   flex:1;
+  background:#22c55e;
+  color:black;
+  font-size:18px;
 }
 
 .box{
   background:#0f172a;
   padding:15px;
-  border-radius:15px;
+  border-radius:20px;
 }
 
 input,select{
   width:100%;
   padding:14px;
   margin-top:10px;
-  border-radius:10px;
+  border-radius:12px;
   border:none;
   background:#1e293b;
   color:white;
@@ -54,7 +56,7 @@ button{
   padding:14px;
   margin-top:10px;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
   background:#22c55e;
   color:black;
   font-weight:bold;
@@ -63,20 +65,36 @@ button{
 .card{
   background:#0f172a;
   padding:15px;
-  border-radius:15px;
-  margin-top:10px;
+  border-radius:20px;
+  margin-top:12px;
+  transition:0.3s;
+}
+
+.card.swipe{
+  transform:translateX(-80px);
+  opacity:0.5;
 }
 
 .row{
   display:flex;
   justify-content:space-between;
-  margin-top:5px;
+  margin-top:6px;
 }
 
 .total{
   text-align:center;
   margin-top:20px;
-  font-size:20px;
+  font-size:22px;
+}
+
+.search{
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  background:#1e293b;
+  color:white;
+  width:100%;
+  margin-bottom:10px;
 }
 </style>
 </head>
@@ -91,28 +109,22 @@ button{
 <button onclick="showPage('report')">📊</button>
 </div>
 
-<!-- HOME -->
 <div id="homePage">
 <div class="box">
 <input placeholder="Customer Name" id="name">
-
 <select id="sub"></select>
-
 <input type="number" placeholder="Cost $" id="cost">
 <input type="number" placeholder="Sell $" id="sell">
-
 <button onclick="add()">+ Add</button>
 </div>
 </div>
 
-<!-- CUSTOMERS -->
 <div id="customersPage" style="display:none">
-<input placeholder="🔍 Search..." id="search" oninput="render()">
+<input class="search" placeholder="🔍 Search..." id="search" oninput="render()">
 <div id="list"></div>
 <div class="total" id="total"></div>
 </div>
 
-<!-- REPORT -->
 <div id="reportPage" style="display:none">
 <div id="reportData"></div>
 </div>
@@ -142,38 +154,36 @@ function calc(r){
 }
 
 function showPage(p){
- document.getElementById("homePage").style.display="none";
- document.getElementById("customersPage").style.display="none";
- document.getElementById("reportPage").style.display="none";
+ homePage.style.display="none";
+ customersPage.style.display="none";
+ reportPage.style.display="none";
 
- if(p==="home") document.getElementById("homePage").style.display="block";
- if(p==="customers"){
-   document.getElementById("customersPage").style.display="block";
-   render();
- }
- if(p==="report"){
-   document.getElementById("reportPage").style.display="block";
-   showReport();
- }
+ if(p==="home") homePage.style.display="block";
+ if(p==="customers"){customersPage.style.display="block"; render();}
+ if(p==="report"){reportPage.style.display="block"; showReport();}
 }
 
 /* swipe */
-let start=0;
+let startX=0;
 
-function startX(e){
- start=e.changedTouches[0].screenX;
+function touchStart(e){
+ startX=e.touches[0].clientX;
 }
 
-function endX(e,i){
- let end=e.changedTouches[0].screenX;
- if(start-end>80){
-   confirmDelete(i);
- }
-}
+function touchEnd(e,i,el){
+ let endX=e.changedTouches[0].clientX;
 
-function confirmDelete(i){
- if(confirm("Delete this customer?")){
-   del(i);
+ if(startX-endX>80){
+   el.classList.add("swipe");
+   setTimeout(()=>{
+     if(confirm("Delete this customer?")){
+       data.splice(i,1);
+       save();
+       render();
+     }else{
+       el.classList.remove("swipe");
+     }
+   },200);
  }
 }
 
@@ -191,33 +201,47 @@ function render(){
 
  let color=p>=0?"#22c55e":"#ef4444";
 
- list.innerHTML+=`
- <div class="card" ontouchstart="startX(event)" ontouchend="endX(event,${i})">
-  <div style="display:flex;justify-content:space-between">
-   <b>${r.name}</b>
+ let div=document.createElement("div");
+ div.className="card";
+
+ div.ontouchstart=(e)=>touchStart(e);
+ div.ontouchend=(e)=>touchEnd(e,i,div);
+
+ div.innerHTML=`
+ <div style="display:flex;justify-content:space-between">
+   <b>${r.name || "Unknown"}</b>
    <span>${r.sub}</span>
-  </div>
+ </div>
 
-  <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
-  <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
+ <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
+ <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
 
-  <div class="row">
+ <div class="row">
    <span>Profit</span>
    <span style="color:${color}">${p.toFixed(2)}$</span>
-  </div>
- </div>`;
+ </div>
+ `;
+
+ list.appendChild(div);
  });
 
  document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
 }
 
 function add(){
- let n=name.value;
- let s=sub.value;
- let c=cost.value;
- let se=sell.value;
+ let n=name.value.trim();
+ if(!n){
+   alert("Enter name");
+   return;
+ }
 
- data.push({name:n,sub:s,cost:c,sell:se});
+ data.push({
+   name:n,
+   sub:sub.value,
+   cost:cost.value,
+   sell:sell.value
+ });
+
  save();
 
  name.value="";
@@ -225,25 +249,15 @@ function add(){
  sell.value="";
 }
 
-function del(i){
- data.splice(i,1);
- save();
- render();
-}
-
 function showReport(){
- let total=0,count=data.length,best=0;
+ let total=0;
 
  data.forEach(r=>{
-  let p=calc(r);
-  total+=p;
-  if(p>best) best=p;
+  total+=calc(r);
  });
 
  document.getElementById("reportData").innerHTML=
- `Total Profit: ${total.toFixed(2)} $<br>
- Customers: ${count}<br>
- Best Profit: ${best.toFixed(2)} $`;
+ "Total Profit: "+total.toFixed(2)+" $";
 }
 
 </script>
