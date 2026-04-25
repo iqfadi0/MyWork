@@ -6,23 +6,22 @@
 
 <title>Fadi Store</title>
 
-<link rel="manifest" href="manifest.json">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon.png">
-
 <style>
 body{
   margin:0;
   font-family:-apple-system;
-  background:#020617;
+  background:linear-gradient(180deg,#020617,#020617,#020617,#0f172a);
   color:white;
   padding:15px;
 }
 
-h1{text-align:center;margin-bottom:15px}
+h1{
+  text-align:center;
+  margin-bottom:20px;
+  font-weight:700;
+}
 
+/* NAV */
 .nav{
   display:flex;
   gap:10px;
@@ -32,53 +31,97 @@ h1{text-align:center;margin-bottom:15px}
 .nav button{
   flex:1;
   background:#22c55e;
-  color:black;
+  border:none;
+  border-radius:12px;
+  padding:12px;
   font-size:18px;
 }
 
+/* BOX */
 .box{
-  background:#0f172a;
+  background:rgba(30,41,59,0.6);
+  backdrop-filter:blur(10px);
   padding:15px;
-  border-radius:15px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
 }
 
 input,select{
   width:100%;
   padding:14px;
   margin-top:10px;
-  border-radius:10px;
+  border-radius:12px;
   border:none;
   background:#1e293b;
   color:white;
 }
 
-button{
-  padding:14px;
+button.add{
+  width:100%;
   margin-top:10px;
-  border:none;
-  border-radius:10px;
   background:#22c55e;
   color:black;
+  font-weight:bold;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+}
+
+/* CARD */
+.card-wrap{
+  position:relative;
+  overflow:hidden;
+  margin-top:12px;
+  border-radius:20px;
+}
+
+.delete-btn{
+  position:absolute;
+  right:0;
+  top:0;
+  bottom:0;
+  width:90px;
+  background:#ef4444;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   font-weight:bold;
 }
 
 .card{
   background:#0f172a;
   padding:15px;
-  border-radius:15px;
-  margin-top:10px;
+  border-radius:20px;
+  transition:0.3s;
+}
+
+.card.swiped{
+  transform:translateX(-90px);
 }
 
 .row{
   display:flex;
   justify-content:space-between;
-  margin-top:5px;
+  margin-top:6px;
 }
+
+.profit{color:#22c55e}
 
 .total{
   text-align:center;
   margin-top:20px;
-  font-size:20px;
+  font-size:22px;
+}
+
+/* SEARCH */
+.search{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  background:#1e293b;
+  margin-bottom:10px;
+  color:white;
 }
 </style>
 </head>
@@ -100,13 +143,13 @@ button{
 <select id="sub"></select>
 <input type="number" placeholder="Cost $" id="cost">
 <input type="number" placeholder="Sell $" id="sell">
-<button onclick="add()">+ Add</button>
+<button class="add" onclick="add()">+ Add</button>
 </div>
 </div>
 
 <!-- CUSTOMERS -->
 <div id="customersPage" style="display:none">
-<input placeholder="🔍 Search..." id="search" oninput="render()">
+<input class="search" placeholder="🔍 Search..." id="search" oninput="render()">
 <div id="list"></div>
 <div class="total" id="total"></div>
 </div>
@@ -118,14 +161,7 @@ button{
 
 <script>
 
-// 🔥 حل المشكلة: إذا في بيانات قديمة فيها undefined → تنظيف
-let data = JSON.parse(localStorage.getItem("data")||"[]")
-  .map(r => ({
-    name: r.name || "",
-    sub: r.sub || "",
-    cost: r.cost || 0,
-    sell: r.sell || 0
-  }));
+let data = JSON.parse(localStorage.getItem("data")||"[]");
 
 const options=["Netflix","Shahid","5.5 GB","11 GB","16.5 GB","22 GB","33 GB","44 GB","55 GB","66 GB","77 GB","88 GB","100 GB"];
 
@@ -143,26 +179,36 @@ function save(){
 function calc(r){
  let c=Number(r.cost);
  let s=Number(r.sell);
- if(isNaN(c)||isNaN(s)) return 0;
- return s-c;
+ return (s-c)||0;
 }
 
 function showPage(p){
- document.getElementById("homePage").style.display="none";
- document.getElementById("customersPage").style.display="none";
- document.getElementById("reportPage").style.display="none";
+ homePage.style.display="none";
+ customersPage.style.display="none";
+ reportPage.style.display="none";
 
- if(p==="home") document.getElementById("homePage").style.display="block";
- if(p==="customers"){
-   document.getElementById("customersPage").style.display="block";
-   render();
- }
- if(p==="report"){
-   document.getElementById("reportPage").style.display="block";
-   showReport();
+ if(p==="home") homePage.style.display="block";
+ if(p==="customers"){customersPage.style.display="block"; render();}
+ if(p==="report"){reportPage.style.display="block"; showReport();}
+}
+
+/* SWIPE */
+let startX=0;
+
+function touchStart(e){
+ startX=e.touches[0].clientX;
+}
+
+function touchEnd(e,el){
+ let endX=e.changedTouches[0].clientX;
+ if(startX-endX>70){
+   el.classList.add("swiped");
+ }else{
+   el.classList.remove("swiped");
  }
 }
 
+/* RENDER */
 function render(){
  let list=document.getElementById("list");
  let keyword=document.getElementById("search").value.toLowerCase();
@@ -170,38 +216,46 @@ function render(){
  let total=0;
 
  data.forEach((r,i)=>{
+
  if(r.name && !r.name.toLowerCase().includes(keyword)) return;
 
  let p=calc(r);
  total+=p;
 
- let color=p>=0?"#22c55e":"#ef4444";
+ let wrap=document.createElement("div");
+ wrap.className="card-wrap";
 
- list.innerHTML+=`
- <div class="card">
-  <div style="display:flex;justify-content:space-between">
-   <b>${r.name || "No Name"}</b>
-   <span>${r.sub}</span>
-  </div>
+ wrap.innerHTML=`
+ <div class="delete-btn" onclick="confirmDel(${i})">Delete</div>
 
-  <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
-  <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
+ <div class="card"
+ ontouchstart="touchStart(event)"
+ ontouchend="touchEnd(event,this)">
 
-  <div class="row">
-   <span>Profit</span>
-   <span style="color:${color}">${p.toFixed(2)}$</span>
-  </div>
- </div>`;
+   <div style="display:flex;justify-content:space-between">
+     <b>${r.name || "No Name"}</b>
+     <span>${r.sub}</span>
+   </div>
+
+   <div class="row"><span>Cost</span><span>${Number(r.cost||0).toFixed(2)}$</span></div>
+   <div class="row"><span>Sell</span><span>${Number(r.sell||0).toFixed(2)}$</span></div>
+   <div class="row"><span>Profit</span><span class="profit">${p.toFixed(2)}$</span></div>
+
+ </div>
+ `;
+
+ list.appendChild(wrap);
  });
 
- document.getElementById("total").innerText="Total: "+total.toFixed(2)+" $";
+ totalEl.innerText="Total: "+total.toFixed(2)+" $";
 }
 
+/* ADD */
 function add(){
- let n = document.getElementById("name").value.trim();
- let s = document.getElementById("sub").value;
- let c = document.getElementById("cost").value;
- let se = document.getElementById("sell").value;
+ let n=document.getElementById("name").value.trim();
+ let s=sub.value;
+ let c=cost.value;
+ let se=sell.value;
 
  if(!n){
    alert("Enter name");
@@ -209,28 +263,33 @@ function add(){
  }
 
  data.push({name:n,sub:s,cost:c,sell:se});
-
  save();
- render(); // 🔥 مهم
+ render();
+ showPage("customers");
 
- document.getElementById("name").value="";
- document.getElementById("cost").value="";
- document.getElementById("sell").value="";
+ name.value="";
+ cost.value="";
+ sell.value="";
 }
 
+/* DELETE CONFIRM */
+function confirmDel(i){
+ if(confirm("Delete this customer?")){
+   data.splice(i,1);
+   save();
+   render();
+ }
+}
+
+/* REPORT */
 function showReport(){
- let total=0,count=data.length,best=0;
+ let total=0;
 
  data.forEach(r=>{
-  let p=calc(r);
-  total+=p;
-  if(p>best) best=p;
+  total+=calc(r);
  });
 
- document.getElementById("reportData").innerHTML=
- `Total Profit: ${total.toFixed(2)} $<br>
- Customers: ${count}<br>
- Best Profit: ${best.toFixed(2)} $`;
+ reportData.innerHTML="Total Profit: "+total.toFixed(2)+" $";
 }
 
 </script>
